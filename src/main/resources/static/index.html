@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Gestão de Vendas</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div id="menuOverlay" class="menu-overlay hidden"></div>
+
+<aside id="sideMenu" class="side-menu">
+  <div class="aside-head">
+    <strong>Cadastros e ajustes</strong>
+    <button id="fecharMenu" class="icon-btn" type="button">×</button>
+  </div>
+  <button data-view="produtos" type="button">📦 Produtos</button>
+  <button data-view="catalogos" type="button">🗂 Catálogos</button>
+  <button data-view="albuns" type="button">📚 Álbuns</button>
+  <button data-view="categorias" type="button">🏷 Categorias</button>
+  <button data-view="precos" type="button">💰 Preços</button>
+  <button data-view="clientes" type="button">👥 Clientes</button>
+  <button data-view="compras" type="button">🛍 Compras de produtos</button>
+  <button data-view="configuracoes" type="button">⚙ Configurações</button>
+  <button data-view="regrasShopee" type="button">🏪 Regras Shopee</button>
+</aside>
+
+<header class="topbar">
+  <div class="brand">
+    <button id="abrirMenu" class="menu-btn" type="button">☰</button>
+    <strong>Gestão de Vendas</strong>
+  </div>
+  <nav class="quick-nav">
+    <button data-view="dashboard" type="button">Dashboard</button>
+    <button data-view="vendas" type="button">Vendas</button>
+  </nav>
+  <div class="user-area">
+    <span id="usuarioNome"></span>
+    <form method="post" action="/logout"><button class="secondary">Sair</button></form>
+  </div>
+</header>
+
+<main>
+  <section id="dashboard" class="view active">
+    <div class="section-head">
+      <h2>Dashboard</h2>
+      <div class="toolbar dashboard-periodo">
+        <label>De
+          <input id="dashboardInicio" type="date">
+        </label>
+        <label>Até
+          <input id="dashboardFim" type="date">
+        </label>
+        <button id="aplicarPeriodoDashboard" type="button">Aplicar período</button>
+        <button id="limparPeriodoDashboard" type="button" class="secondary">Todo o período</button>
+      </div>
+    </div>
+    <div class="cards">
+      <article><span>Faturamento</span><strong id="dFat">R$ 0,00</strong></article>
+      <article><span>Lucro líquido</span><strong id="dLucro">R$ 0,00</strong></article>
+      <article><span>Compras de produtos</span><strong id="dCompras">R$ 0,00</strong></article>
+      <article><span>Taxas/despesas</span><strong id="dTaxas">R$ 0,00</strong></article>
+      <article><span>Ticket médio</span><strong id="dTicket">R$ 0,00</strong></article>
+      <article><span>Vendas finalizadas</span><strong id="dFinalizadas">0</strong></article>
+    </div>
+    <div class="grid2">
+      <div><h3>Volume por tipo</h3><div id="dVolume" class="table-wrap"></div></div>
+      <div><h3>Mais vendidos</h3><div id="dMais" class="table-wrap"></div></div>
+      <div><h3>Estoque baixo</h3><div id="dEstoque" class="table-wrap"></div></div>
+      <div><h3>Status de vendas</h3><div id="dStatus" class="panel"></div></div>
+    </div>
+  </section>
+
+  <section id="produtos" class="view">
+    <div class="section-head">
+      <h2>Produtos</h2>
+      <div class="toolbar">
+        <button id="btnTiposProduto" type="button" class="secondary">Gerenciar tipos</button>
+        <button id="btnNovoProduto" type="button">Novo produto</button>
+      </div>
+    </div>
+
+    <form id="formProduto" class="panel hidden">
+      <input type="hidden" id="produtoId">
+      <label>Tipo
+        <select id="produtoTipo" required></select>
+      </label>
+      <label>Álbum
+        <select id="produtoAlbum"></select>
+      </label>
+      <label>Categoria
+        <select id="produtoCategoria"></select>
+      </label>
+      <label>Seleção
+        <input id="produtoSelecao" placeholder="Ex: BRA" maxlength="3">
+      </label>
+      <label>Número
+        <input id="produtoNumero" type="number">
+      </label>
+      <label>Nome
+        <input id="produtoNome" placeholder="Opcional para figurinhas">
+      </label>
+      <label>Preço específico
+        <input id="produtoPreco" type="number" step="0.01">
+      </label>
+      <label>Estoque
+        <input id="produtoEstoque" type="number" min="0" required>
+      </label>
+      <div class="form-actions">
+        <button id="produtoSubmit">Salvar</button>
+        <button type="button" id="produtoCancelar" class="secondary hidden">Cancelar edição</button>
+      </div>
+    </form>
+
+    <div class="filter-header">
+      <button type="button" class="secondary filter-toggle" data-filter-target="filtrosProdutos">⏷ Filtrar</button>
+    </div>
+    <div class="panel table-filters hidden" id="filtrosProdutos">
+      <label>Tipo
+        <select id="filtroProdutoTipo" class="filter-search-select"></select>
+      </label>
+      <label>Álbum
+        <select id="filtroProdutoAlbum" class="filter-search-select"></select>
+      </label>
+      <label>Ano
+        <select id="filtroProdutoAno" class="filter-search-select"></select>
+      </label>
+      <label>Seleção
+        <select id="filtroProdutoSelecao" class="filter-search-select"></select>
+      </label>
+      <label>Categoria
+        <select id="filtroProdutoCategoria" class="filter-search-select"></select>
+      </label>
+      <label>Estoque
+        <select id="filtroProdutoEstoque" class="filter-search-select">
+          <option value="">Todos</option>
+          <option value="com">Com estoque</option>
+          <option value="sem">Sem estoque</option>
+        </select>
+      </label>
+      <label>Busca
+        <input id="filtroProdutoBusca" placeholder="Número ou nome">
+      </label>
+      <div class="form-actions">
+        <button type="button" id="limparFiltrosProdutos" class="secondary">Limpar filtros</button>
+      </div>
+    </div>
+
+    <div id="listaProdutos" class="table-wrap"></div>
+    <div id="paginacaoProdutos" class="pagination"></div>
+  </section>
+
+  <section id="catalogos" class="view">
+    <div class="section-head">
+      <div>
+        <h2>Catálogos</h2>
+        <p class="muted">Adicione um catálogo pré-carregado ao seu estoque. As figurinhas entram com estoque 0 e categoria Comum.</p>
+      </div>
+    </div>
+    <div id="listaCatalogos" class="catalog-cards"></div>
+
+    <div id="catalogoCategoriasBox" class="panel panel-block hidden">
+      <div class="full section-head">
+        <div>
+          <h3 id="catalogoGridTitulo">Categorias do catálogo</h3>
+          <p class="muted">Clique nos quadradinhos para selecionar várias figurinhas e aplique uma categoria de uma vez.</p>
+        </div>
+        <button type="button" id="fecharCatalogoGrid" class="secondary">Fechar grid</button>
+      </div>
+      <label>Grupo / seleção
+        <select id="catalogoFiltroGrupo" class="filter-search-select"></select>
+      </label>
+      <label>Categoria atual
+        <select id="catalogoFiltroCategoria" class="filter-search-select"></select>
+      </label>
+      <label>Buscar código
+        <input id="catalogoFiltroBusca" placeholder="Ex: BRA17">
+      </label>
+      <label>Categoria a aplicar
+        <select id="catalogoCategoriaAplicar"></select>
+      </label>
+      <div class="form-actions full">
+        <button type="button" id="catalogoSelecionarFiltrados" class="secondary">Selecionar filtrados</button>
+        <button type="button" id="catalogoLimparSelecao" class="secondary">Limpar seleção</button>
+        <button type="button" id="catalogoAplicarCategoria">Aplicar categoria</button>
+        <strong id="catalogoSelecionadas">0 selecionadas</strong>
+      </div>
+      <div id="catalogoLegenda" class="catalog-legend full"></div>
+      <div id="catalogoGrid" class="catalog-grid-wrap full"></div>
+    </div>
+  </section>
+
+  <section id="albuns" class="view">
+    <h2>Álbuns</h2>
+    <form id="formAlbum" class="panel">
+      <input type="hidden" id="albumId">
+      <label>Nome<input id="albumNome" required></label>
+      <label>Ano<input id="albumAno" type="number"></label>
+      <label>Tipo
+        <select id="albumTipo">
+          <option value="OUTRO">Outro</option>
+          <option value="COPA_DO_MUNDO">Copa do Mundo</option>
+          <option value="BRASILEIRAO">Brasileirão</option>
+          <option value="CHAMPIONS">Champions</option>
+        </select>
+      </label>
+      <div class="form-actions">
+        <button id="albumSubmit">Cadastrar</button>
+        <button type="button" id="albumCancelar" class="secondary hidden">Cancelar edição</button>
+      </div>
+    </form>
+    <div class="filter-header"><button type="button" class="secondary filter-toggle" data-filter-target="filtrosAlbuns">⏷ Filtrar</button></div>
+    <div class="panel table-filters hidden" id="filtrosAlbuns">
+      <label>Nome<input id="filtroAlbumNome" placeholder="Buscar álbum"></label>
+      <label>Ano<select id="filtroAlbumAno" class="filter-search-select"></select></label>
+      <label>Tipo<select id="filtroAlbumTipo" class="filter-search-select"></select></label>
+      <div class="form-actions"><button type="button" id="limparFiltrosAlbuns" class="secondary">Limpar filtros</button></div>
+    </div>
+    <div id="listaAlbuns" class="table-wrap"></div>
+  </section>
+
+  <section id="categorias" class="view">
+    <h2>Categorias</h2>
+    <form id="formCategoria" class="panel">
+      <input type="hidden" id="categoriaId">
+      <label>Nome<input id="categoriaNome" required></label>
+      <div class="form-actions">
+        <button id="categoriaSubmit">Cadastrar</button>
+        <button type="button" id="categoriaCancelar" class="secondary hidden">Cancelar edição</button>
+      </div>
+    </form>
+    <div class="filter-header"><button type="button" class="secondary filter-toggle" data-filter-target="filtrosCategorias">⏷ Filtrar</button></div>
+    <div class="panel table-filters hidden" id="filtrosCategorias">
+      <label>Nome<input id="filtroCategoriaNome" placeholder="Buscar categoria"></label>
+      <div class="form-actions"><button type="button" id="limparFiltrosCategorias" class="secondary">Limpar filtros</button></div>
+    </div>
+    <div id="listaCategorias" class="table-wrap"></div>
+  </section>
+
+  <section id="precos" class="view">
+    <h2>Preços por álbum e categoria</h2>
+    <form id="formPreco" class="panel">
+      <input type="hidden" id="precoId">
+      <label>Álbum<select id="precoAlbum" required></select></label>
+      <label>Categoria<select id="precoCategoria" required></select></label>
+      <label>Valor<input id="precoValor" type="number" step="0.01" min="0" required></label>
+      <div class="form-actions">
+        <button id="precoSubmit">Cadastrar preço</button>
+        <button type="button" id="precoCancelar" class="secondary hidden">Cancelar edição</button>
+      </div>
+    </form>
+    <div class="filter-header"><button type="button" class="secondary filter-toggle" data-filter-target="filtrosPrecos">⏷ Filtrar</button></div>
+    <div class="panel table-filters hidden" id="filtrosPrecos">
+      <label>Álbum<select id="filtroPrecoAlbum" class="filter-search-select"></select></label>
+      <label>Ano<select id="filtroPrecoAno" class="filter-search-select"></select></label>
+      <label>Categoria<select id="filtroPrecoCategoria" class="filter-search-select"></select></label>
+      <div class="form-actions"><button type="button" id="limparFiltrosPrecos" class="secondary">Limpar filtros</button></div>
+    </div>
+    <div id="listaPrecos" class="table-wrap"></div>
+  </section>
+
+  <section id="clientes" class="view">
+    <h2>Clientes</h2>
+    <form id="formCliente" class="panel">
+      <input type="hidden" id="clienteId">
+      <label>Nome<input id="clienteNome" required></label>
+      <label>E-mail<input id="clienteEmail" type="email"></label>
+      <label>Telefone<input id="clienteTelefone"></label>
+      <div class="form-actions">
+        <button id="clienteSubmit">Cadastrar</button>
+        <button type="button" id="clienteCancelar" class="secondary hidden">Cancelar edição</button>
+      </div>
+    </form>
+    <div class="filter-header"><button type="button" class="secondary filter-toggle" data-filter-target="filtrosClientes">⏷ Filtrar</button></div>
+    <div class="panel table-filters hidden" id="filtrosClientes">
+      <label>Busca<input id="filtroClienteBusca" placeholder="Nome, e-mail ou telefone"></label>
+      <div class="form-actions"><button type="button" id="limparFiltrosClientes" class="secondary">Limpar filtros</button></div>
+    </div>
+    <div id="listaClientes" class="table-wrap"></div>
+  </section>
+
+  <section id="compras" class="view">
+    <h2>Compras de produtos</h2>
+    <p class="muted">Registre aqui o valor total de cada investimento em estoque.</p>
+    <form id="formCompra" class="panel">
+      <input type="hidden" id="compraId">
+      <label>Data<input id="compraData" type="date"></label>
+      <label>Descrição<input id="compraDescricao" placeholder="Ex.: Lote Copa 2022" required></label>
+      <label>Valor total<input id="compraValor" type="number" step="0.01" min="0" required></label>
+      <label class="full">Observação<textarea id="compraObservacao" rows="3"></textarea></label>
+      <div class="form-actions">
+        <button id="compraSubmit">Salvar compra</button>
+        <button type="button" id="compraCancelar" class="secondary hidden">Cancelar edição</button>
+      </div>
+    </form>
+    <div class="filter-header"><button type="button" class="secondary filter-toggle" data-filter-target="filtrosCompras">⏷ Filtrar</button></div>
+    <div class="panel table-filters hidden" id="filtrosCompras">
+      <label>Descrição<input id="filtroCompraDescricao" placeholder="Buscar descrição"></label>
+      <label>Data<input id="filtroCompraData" type="date"></label>
+      <div class="form-actions"><button type="button" id="limparFiltrosCompras" class="secondary">Limpar filtros</button></div>
+    </div>
+    <div id="listaCompras" class="table-wrap"></div>
+  </section>
+
+  <section id="configuracoes" class="view">
+    <h2>Configurações de venda</h2>
+    <form id="formConfiguracao" class="panel">
+      <input type="hidden" id="configId">
+      <label>Nome<input id="configNome" placeholder="Shopee" required></label>
+      <label>É configuração Shopee?
+        <select id="configShopee"><option value="false">Não</option><option value="true">Sim</option></select>
+      </label>
+      <label class="shopee-field">Tipo de vendedor Shopee
+        <select id="configTipoVendedor"><option value="">Selecione</option><option value="CPF">CPF</option><option value="CNPJ">CNPJ</option></select>
+      </label>
+      <label class="shopee-field">CPF acima de 450 pedidos/90 dias?
+        <select id="config450"><option value="false">Não</option><option value="true">Sim</option></select>
+      </label>
+      <label>Embalagem<input id="configEmbalagem" type="number" step="0.01" value="0"></label>
+      <label class="manual-tax-field">Taxa percentual (decimal, ex. 0.14)<input id="configTaxaPercentual" type="number" step="0.0001" value="0"></label>
+      <label class="manual-tax-field">Taxa fixa<input id="configTaxaFixa" type="number" step="0.01" value="0"></label>
+      <div class="info-box shopee-info hidden full">Ao marcar Shopee, as taxas percentuais/fixas passam a ser calculadas automaticamente.</div>
+      <div class="form-actions">
+        <button id="configSubmit">Salvar</button>
+        <button type="button" id="configCancelar" class="secondary hidden">Cancelar edição</button>
+      </div>
+    </form>
+    <div class="filter-header"><button type="button" class="secondary filter-toggle" data-filter-target="filtrosConfiguracoes">⏷ Filtrar</button></div>
+    <div class="panel table-filters hidden" id="filtrosConfiguracoes">
+      <label>Nome<input id="filtroConfiguracaoNome" placeholder="Buscar configuração"></label>
+      <label>Shopee<select id="filtroConfiguracaoShopee" class="filter-search-select"><option value="">Todas</option><option value="true">Sim</option><option value="false">Não</option></select></label>
+      <div class="form-actions"><button type="button" id="limparFiltrosConfiguracoes" class="secondary">Limpar filtros</button></div>
+    </div>
+    <div id="listaConfiguracoes" class="table-wrap"></div>
+  </section>
+
+  <section id="regrasShopee" class="view">
+    <h2>Regras regressivas Shopee</h2>
+    <p class="muted">Para CPF com mais de 450 pedidos, cadastre os valores exatos conhecidos para o valor total da venda entre R$ 8,00 e R$ 12,00.</p>
+    <form id="formRegraShopee" class="panel">
+      <label>Valor total da venda<input id="regraValor" type="number" step="0.01" required></label>
+      <label>Taxa total<input id="regraTaxa" type="number" step="0.01" required></label>
+      <div class="form-actions"><button>Salvar regra</button></div>
+    </form>
+    <div class="filter-header"><button type="button" class="secondary filter-toggle" data-filter-target="filtrosRegrasShopee">⏷ Filtrar</button></div>
+    <div class="panel table-filters hidden" id="filtrosRegrasShopee">
+      <label>Buscar valor<input id="filtroRegraShopee" type="number" step="0.01"></label>
+      <div class="form-actions"><button type="button" id="limparFiltrosRegrasShopee" class="secondary">Limpar filtros</button></div>
+    </div>
+    <div id="listaRegrasShopee" class="table-wrap"></div>
+  </section>
+
+  <section id="vendas" class="view">
+    <div class="section-head">
+      <h2>Vendas</h2>
+      <button type="button" id="btnPreferencias" class="secondary">Preferências</button>
+    </div>
+
+    <div class="tabs">
+      <button type="button" class="tab-btn active-tab" data-sales-tab="novaVenda">Nova venda</button>
+      <button type="button" class="tab-btn" data-sales-tab="vendasAbertasVenda">Vendas em aberto</button>
+      <button type="button" class="tab-btn" data-sales-tab="orcamentosVenda">Orçamentos</button>
+      <button type="button" class="tab-btn" data-sales-tab="historicoVenda">Histórico</button>
+    </div>
+
+    <div id="novaVenda" class="sales-tab active-sales-tab">
+      <form id="formVenda" class="panel panel-block">
+        <label>Cliente<select id="vendaCliente"></select></label>
+        <label>Configuração<select id="vendaConfiguracao" required></select></label>
+        <div id="vendaConfigResumo" class="info-box full"></div>
+        <label>Frete pago pelo vendedor?
+          <select id="vendaFretePago"><option value="false">Não</option><option value="true">Sim</option></select>
+        </label>
+        <label id="vendaFreteWrap" class="hidden">Valor do frete<input id="vendaFrete" type="number" step="0.01" value="0"></label>
+
+        <div class="items-box full">
+          <h3>Adicionar item manualmente</h3>
+          <div id="vendaPicker" class="compact-picker"></div>
+          <div class="compact-items-wrap">
+            <table class="compact-items-table">
+              <thead><tr><th>Item</th><th>Tipo</th><th>Álbum/Ano</th><th>Qtd.</th><th>Ação</th></tr></thead>
+              <tbody id="vendaItensBody"></tbody>
+            </table>
+            <div id="vendaItensPaginacao" class="pagination"></div>
+          </div>
+        </div>
+
+        <div class="items-box lista-colada-box full">
+          <div class="items-head"><h3>Colar lista de figurinhas</h3></div>
+          <div class="lista-colada-grid">
+            <label>Álbum da lista<select id="vendaListaAlbum"></select></label>
+            <label class="full">Lista recebida<textarea id="vendaListaTexto" rows="5" placeholder="Ex.: BRA 17&#10;ARG 10&#10;BRA 3, 4, 8, 12"></textarea></label>
+          </div>
+          <div class="form-actions">
+            <button type="button" id="interpretarVendaLista" class="secondary">Interpretar lista</button>
+            <button type="button" id="adicionarVendaLista" class="hidden">Adicionar encontradas</button>
+          </div>
+          <div id="vendaListaPreview" class="lista-preview"></div>
+        </div>
+
+        <div class="form-actions"><button>Criar venda</button></div>
+      </form>
+
+    </div>
+
+    <div id="vendasAbertasVenda" class="sales-tab">
+      <h3>Vendas em aberto</h3>
+      <div id="listaVendasAbertas" class="table-wrap"></div>
+    </div>
+
+    <div id="orcamentosVenda" class="sales-tab">
+      <form id="formOrcamento" class="panel panel-block">
+        <label>Cliente<select id="orcamentoCliente"></select></label>
+
+        <div class="items-box full">
+          <h3>Adicionar item manualmente</h3>
+          <div id="orcamentoPicker" class="compact-picker"></div>
+          <div class="compact-items-wrap">
+            <table class="compact-items-table">
+              <thead><tr><th>Item</th><th>Tipo</th><th>Álbum/Ano</th><th>Qtd.</th><th>Ação</th></tr></thead>
+              <tbody id="orcamentoItensBody"></tbody>
+            </table>
+            <div id="orcamentoItensPaginacao" class="pagination"></div>
+          </div>
+        </div>
+
+        <div class="items-box lista-colada-box full">
+          <div class="items-head"><h3>Colar lista de figurinhas</h3></div>
+          <div class="lista-colada-grid">
+            <label>Álbum da lista<select id="orcListaAlbum"></select></label>
+            <label class="full">Lista recebida<textarea id="orcListaTexto" rows="5" placeholder="Ex.: BRA 17&#10;ARG 10&#10;BRA 3, 4, 8, 12"></textarea></label>
+          </div>
+          <div class="form-actions">
+            <button type="button" id="interpretarOrcLista" class="secondary">Interpretar lista</button>
+            <button type="button" id="adicionarOrcLista" class="hidden">Adicionar encontradas</button>
+          </div>
+          <div id="orcListaPreview" class="lista-preview"></div>
+        </div>
+
+        <div class="form-actions"><button>Criar orçamento</button></div>
+      </form>
+
+      <div class="filter-header"><button type="button" class="secondary filter-toggle" data-filter-target="filtrosOrcamentos">⏷ Filtrar</button></div>
+      <div class="panel table-filters hidden" id="filtrosOrcamentos">
+        <label>Cliente<select id="filtroOrcamentoCliente" class="filter-search-select"></select></label>
+        <label>Data<input id="filtroOrcamentoData" type="date"></label>
+        <label>Valor mínimo<input id="filtroOrcamentoMin" type="number" step="0.01"></label>
+        <label>Valor máximo<input id="filtroOrcamentoMax" type="number" step="0.01"></label>
+        <div class="form-actions"><button type="button" id="limparFiltrosOrcamentos" class="secondary">Limpar filtros</button></div>
+      </div>
+      <div id="listaOrcamentos" class="table-wrap"></div>
+    </div>
+
+    <div id="historicoVenda" class="sales-tab">
+      <div class="filter-header">
+        <button type="button" class="secondary filter-toggle" data-filter-target="filtrosHistorico">⏷ Filtrar</button>
+      </div>
+      <div class="panel history-filters hidden" id="filtrosHistorico">
+        <label>De<input id="historicoDataInicio" type="date"></label>
+        <label>Até<input id="historicoDataFim" type="date"></label>
+        <label>Status<select id="historicoStatus" class="filter-search-select"><option value="">Todos</option><option value="FINALIZADA">Finalizada</option><option value="CANCELADA">Cancelada</option></select></label>
+        <label>Cliente<select id="historicoCliente" class="filter-search-select"></select></label>
+        <label>Canal<select id="historicoCanal" class="filter-search-select"></select></label>
+        <label>Tipo de produto<select id="historicoTipoProduto" class="filter-search-select"></select></label>
+        <div class="form-actions"><button type="button" id="limparFiltrosHistorico" class="secondary">Limpar filtros</button></div>
+      </div>
+      <div id="listaHistoricoVendas" class="table-wrap"></div>
+      <div id="paginacaoHistorico" class="pagination"></div>
+    </div>
+  </section>
+</main>
+
+<div id="preferenciasModal" class="modal hidden">
+  <div class="modal-card small">
+    <div class="modal-head"><h3>Preferências</h3><button id="fecharPreferencias" class="secondary" type="button">Fechar</button></div>
+    <form id="formPreferencias">
+      <label>Considerar estoque baixo quando houver<input id="limiteEstoqueBaixo" type="number" min="0" required></label>
+      <span>unidades ou menos</span>
+      <button>Salvar</button>
+    </form>
+  </div>
+</div>
+
+<div id="tiposProdutoModal" class="modal hidden">
+  <div class="modal-card">
+    <div class="modal-head"><h3>Tipos de produto</h3><button id="fecharTiposProduto" class="secondary" type="button">Fechar</button></div>
+    <p class="muted">Figurinha, Álbum completo e Álbum incompleto são tipos padrão do sistema e não podem ser excluídos.</p>
+    <form id="formTipoProduto" class="panel">
+      <input type="hidden" id="tipoProdutoId">
+      <label>Novo tipo<input id="tipoProdutoNome" placeholder="Ex.: Sleeve" required></label>
+      <div class="form-actions"><button>Salvar tipo</button><button id="tipoProdutoCancelar" type="button" class="secondary hidden">Cancelar edição</button></div>
+    </form>
+    <div id="listaTiposProduto" class="table-wrap"></div>
+  </div>
+</div>
+
+<div id="converterOrcamentoModal" class="modal hidden">
+  <div class="modal-card small">
+    <div class="modal-head"><h3>Converter orçamento em venda</h3><button id="fecharConverterOrcamento" class="secondary" type="button">Fechar</button></div>
+    <form id="formConverterOrcamento">
+      <input type="hidden" id="converterOrcamentoId">
+      <label>Configuração<select id="converterConfiguracao" required></select></label>
+      <label>Frete pago pelo vendedor?<select id="converterFretePago"><option value="false">Não</option><option value="true">Sim</option></select></label>
+      <label id="converterFreteWrap" class="hidden">Valor do frete<input id="converterFrete" type="number" step="0.01" value="0"></label>
+      <button>Converter em venda</button>
+    </form>
+  </div>
+</div>
+
+<div id="modal" class="modal hidden">
+  <div class="modal-card">
+    <div class="modal-head"><h3 id="modalTitulo">Detalhes</h3><button id="fecharModal" class="secondary" type="button">Fechar</button></div>
+    <div id="modalConteudo"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<script src="/js/app.js"></script>
+</body>
+</html>

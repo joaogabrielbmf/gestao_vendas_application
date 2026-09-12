@@ -1,0 +1,14 @@
+# Variáveis de ambiente / segredos
+.env
+.env.*
+!.env.example
+
+# Arquivos gerados pelo Maven
+target/
+
+# IntelliJ
+.idea/
+*.iml
+
+# Logs
+*.log

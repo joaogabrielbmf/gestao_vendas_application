@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Entrar — Gestão de Vendas</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="auth-page">
+  <div class="auth-card">
+    <h1>Gestão de Vendas</h1>
+
+    <div id="loginBox">
+      <p class="muted">Acesse sua conta</p>
+      <form method="post" action="/login">
+        <label>E-mail<input name="username" type="email" required></label>
+        <label>Senha<input name="password" type="password" required></label>
+        <button>Entrar</button>
+      </form>
+      <p class="auth-switch">Não possui conta? <button type="button" id="mostrarCadastro" class="link-button">Cadastre-se</button></p>
+    </div>
+
+    <div id="cadastroBox" class="hidden">
+      <p class="muted">Crie sua conta</p>
+      <form id="cadastroForm">
+        <label>Nome<input id="cadNome" required></label>
+        <label>E-mail<input id="cadEmail" type="email" required></label>
+        <label>Senha<input id="cadSenha" type="password" minlength="6" required></label>
+        <label>Confirmar senha<input id="cadConfirmarSenha" type="password" minlength="6" required></label>
+        <button type="submit">Criar conta</button>
+      </form>
+      <p class="auth-switch">Já possui conta? <button type="button" id="mostrarLogin" class="link-button">Entrar</button></p>
+    </div>
+
+    <p id="authMsg"></p>
+  </div>
+  <script src="/js/login.js"></script>
+</body>
+</html>
