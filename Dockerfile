@@ -22,4 +22,4 @@ COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8080
 
-CMD ["sh", "-c", "echo '=== TESTANDO CONEXAO DIRETA COM SUPABASE ===' && PGPASSWORD=\"$DB_PASSWORD\" psql -h aws-0-ca-central-1.pooler.supabase.com -p 5432 -U \"$DB_USERNAME\" -d postgres \"sslmode=require\" -c 'SELECT 1;' && echo '=== CONEXAO PSQL FUNCIONOU ===' && java -jar app.jar"]
+CMD ["sh", "-c", "echo '=== TESTE PSQL COM SSL OBRIGATORIO ===' && PGPASSWORD=\"$DB_PASSWORD\" PGSSLMODE=require psql -h aws-0-ca-central-1.pooler.supabase.com -p 5432 -U \"$DB_USERNAME\" -d postgres -c 'SELECT 1;' && echo '=== PSQL SSL FUNCIONOU ===' && java -jar app.jar"]
