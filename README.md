@@ -1,110 +1,213 @@
-# Gestão de Vendas — Figurinhas, Álbuns e Cards
+# 📦 Sistema de Gestão de Vendas
 
-Projeto Spring Boot + PostgreSQL com frontend em HTML/CSS/JavaScript puro.
+Sistema web para gerenciamento de vendas, estoque e resultados financeiros de pequenos vendedores, com foco em operações de figurinhas, álbuns e vendas realizadas através de marketplaces como a Shopee.
 
-## Requisitos
-- Java 21
-- Maven
-- PostgreSQL
-- Banco `gestao_vendas`
+## 🌐 Acesse o projeto
 
-## Configuração
-Edite `src/main/resources/application.properties` e coloque seu usuário/senha do PostgreSQL.
+A aplicação está publicada e pode ser acessada em:
 
-## Rodar
-```bash
-mvn spring-boot:run
+**https://gestao-vendas-application.onrender.com**
+
+> O projeto está hospedado no plano gratuito do Render. Por isso, após um período sem acessos, o primeiro carregamento pode levar alguns instantes enquanto o servidor é iniciado.
+
+## 💡 Sobre o projeto
+
+O sistema centraliza o controle da operação de um pequeno vendedor, permitindo acompanhar desde a entrada de produtos até a realização das vendas e a análise dos resultados.
+
+Cada usuário possui sua própria conta e seus dados são mantidos separados dos demais usuários.
+
+## ⚙️ Principais funcionalidades
+
+- Cadastro e gerenciamento de produtos
+- Controle de estoque
+- Cadastro de clientes
+- Registro de vendas
+- Vendas em aberto, finalizadas e canceladas
+- Criação de orçamentos e conversão em vendas
+- Registro de compras de produtos
+- Cadastro de álbuns e categorias
+- Configuração de preços por categoria e álbum
+- Configuração de taxas de venda
+- Regras específicas para vendas pela Shopee
+- Dashboard com indicadores financeiros
+- Ranking de produtos mais vendidos
+- Controle de produtos com estoque baixo
+- Catálogo de figurinhas da Copa do Mundo 2026
+- Importação de figurinhas por seleção e número
+- Filtros e paginação
+
+## 📊 Dashboard
+
+O Dashboard permite acompanhar informações importantes da operação, como:
+
+- Faturamento
+- Compras
+- Resultado financeiro
+- Vendas por status
+- Produtos mais vendidos
+- Produtos com estoque baixo
+
+Os resultados também podem ser filtrados por período.
+
+## ⚽ Catálogo de figurinhas
+
+O sistema possui um catálogo da Copa do Mundo 2026 que facilita o cadastro e gerenciamento das figurinhas.
+
+As figurinhas podem ser identificadas por códigos como:
+
+```text
+BRA17
+ARG5
+GER12
+FWC1
+CC1
 ```
 
-Acesse:
-- Frontend: http://localhost:8080/
-- API: http://localhost:8080/produtos, /albuns, /categorias, /clientes, /vendas etc.
+Também é possível inserir listas de figurinhas e trabalhar com múltiplas unidades do mesmo item.
 
-## Regras implementadas
-- Produto: figurinha, álbum completo e álbum incompleto.
-- Copa do Mundo 2022+: figurinha é identificada por álbum + seleção + número.
-- Demais álbuns: figurinha é identificada por álbum + número.
-- Preço de figurinha: usa `precoEspecifico` quando existe; senão usa preço por álbum + categoria.
-- Venda mantém snapshot de `valorUnitario` e `custoUnitario`.
-- Venda finalizada baixa estoque.
-- Cancelamento de venda finalizada repõe estoque.
-- Venda finalizada/cancelada não pode ser excluída.
-- Configuração de venda copia taxas/embalagem para a venda.
-- Resumo de venda calcula faturamento, custos, taxas e lucro.
+## 🛠️ Tecnologias utilizadas
 
-## Observação
-Este é um MVP funcional para evolução. Para produção, recomenda-se adicionar autenticação, migrations (Flyway/Liquibase), testes automatizados e DTOs de resposta.
+### Backend
 
+- Java 21
+- Spring Boot
+- Spring Data JPA
+- Hibernate
+- Spring Security
+- Maven
 
-## Frontend com nomes
-Os relacionamentos são escolhidos em selects por nomes legíveis. Os IDs permanecem apenas como valores internos enviados à API. Isso vale para produto/álbum/categoria, preço por categoria, cliente, configuração, orçamento e venda.
+### Frontend
 
+- HTML
+- CSS
+- JavaScript
+- Fetch API
 
-## Correção: total do orçamento
-- A listagem de orçamentos agora mostra o valor total.
-- A tela de detalhes mostra valor unitário, subtotal por item e total geral.
-- Novo endpoint: `GET /orcamentos/{id}/total`.
+### Banco de dados e infraestrutura
 
+- PostgreSQL
+- Supabase
+- Docker
+- Render
 
-## Alterações desta versão
-- Login/cadastro com Spring Security e BCrypt.
-- Preferência de limite de estoque baixo por usuário.
-- Menu lateral retrátil; Dashboard, Orçamentos e Vendas ficam na barra superior.
-- Número da figurinha separado do nome na tabela de produtos e ordenação numérica.
-- Texto simplificado da configuração Shopee e alinhamento dos selects.
-- Estrutura de propriedade `Usuario` adicionada às entidades para evolução do isolamento por vendedor.
-- Utilitário de normalização textual incluído para padronização de nomes.
+## 🏗️ Arquitetura
 
-### Banco existente
-Como esta versão adiciona autenticação e a coluna `codigo_usuario` a várias tabelas, teste primeiro em uma cópia do banco. `ddl-auto=update` criará as novas estruturas, mas registros antigos não terão proprietário automaticamente.
+```text
+HTML / CSS / JavaScript
+          ↓
+      Spring Boot
+          ↓
+   Services / Repositories
+          ↓
+   JPA / Hibernate
+          ↓
+PostgreSQL / Supabase
+```
 
-## Ajustes desta versão
-- Detalhe da venda agora separa corretamente `taxaShopee` de `taxaPercentual`; a soma das taxas Shopee exibida no resumo corresponde às taxas unitárias dos itens.
-- A tela Vendas foi separada em **Vendas em aberto** e **Histórico de vendas**.
-- Histórico com filtros por período, status, cliente, canal/configuração e tipo de produto.
-- Histórico exibe faturamento, despesas e lucro e permite abrir os detalhes da venda sem editar registros finalizados/cancelados.
-- Corrigida a ordenação numérica da coluna Número em Produtos.
+O frontend se comunica com o backend através de requisições HTTP utilizando a Fetch API.
 
-## Atualizações desta versão
-- Produtos continuam paginados no backend com `Pageable`, 20 por página.
-- Histórico de vendas também usa `Pageable`, com até 20 vendas por página.
-- Filtros ficam recolhidos e abrem pelo botão **Filtrar**; filtros categóricos são pesquisáveis e o dropdown exibe aproximadamente 5 opções por vez com scroll.
-- Orçamentos agora ficam dentro da área **Vendas** e podem ser convertidos em venda.
-- Itens adicionados manualmente ou por lista ficam em tabela compacta com scroll interno.
-- Para figurinhas: seleção só é habilitada em Copa do Mundo 2022 ou posterior e usa exatamente 3 letras maiúsculas (ex.: `BRA`).
-- Para álbum completo/incompleto: categoria, seleção e número ficam desabilitados.
-- Detalhes de venda agrupam figurinhas por álbum/ano; Copa 2022+ usa formato como `BRA17`.
-- Configuração CNPJ desabilita a opção de CPF acima de 450 pedidos/90 dias.
-- Taxas Shopee são calculadas com base no valor total da venda, uma única vez.
-- Custos médio/específico deixaram de ser usados no fluxo; investimentos são registrados em **Compras de produtos**.
-- Usuários podem criar tipos de produto personalizados (ex.: Sleeve, Toploader), com normalização e bloqueio de duplicidades.
-- A câmera não foi implementada nesta versão, conforme combinado.
+O backend é responsável pelas regras de negócio, autenticação, acesso aos dados e comunicação com o banco PostgreSQL.
 
-### Compatibilidade
-Os campos antigos de custo permanecem nas entidades/tabelas apenas para não quebrar bancos já existentes, mas não são usados no novo cálculo financeiro.
+## 🔐 Autenticação
 
-## Catálogo pré-carregado de teste
-Esta versão inclui o catálogo **Copa do Mundo 2026** baseado no controle de figurinhas fornecido pelo usuário. O catálogo contém 993 itens: FWC1–FWC19, 48 seleções com 20 figurinhas cada e CC1–CC14.
+A aplicação utiliza Spring Security para autenticação.
 
-Fluxo:
-1. Abra **Catálogos** no menu lateral.
-2. Clique em **Adicionar ao meu estoque**. As figurinhas são criadas com estoque 0 e categoria **Comum**.
-3. Clique em **Gerenciar categorias** para abrir o grid clicável.
-4. Selecione várias figurinhas, escolha a categoria e aplique em massa.
+Os produtos, clientes, vendas, orçamentos, compras e demais informações comerciais são associados ao usuário autenticado, mantendo os dados de diferentes usuários separados.
 
-O grid permite filtrar por grupo/seleção, categoria atual e código da figurinha, além de selecionar todos os itens filtrados de uma vez.
+## 💰 Vendas e orçamentos
 
-## Atualização de testes - 09/09/2026
-- Dashboard: paginação visual independente (volume/mais vendidos: 5; estoque baixo: 10).
-- Produtos: seleção ordena também pelo número; estoque editável inline com +/-; tipo de preço e preço separados.
-- Edição de produto e álbum centralizada; álbum aceita números no nome e mostra Salvar durante edição.
-- Vendas: aba independente Vendas em aberto.
-- Itens de venda/orçamento e interpretação de listas: 10 por página; preview sem coluna Entrada.
-- Corrigido vínculo de produtos manuais ao usuário atual (incluindo migração dos produtos legados sem usuário), o que fazia álbum completo não aparecer.
+As vendas registram os produtos, quantidades e valores utilizados em cada operação.
 
+Uma venda pode possuir os seguintes status:
 
-### Atualização de testes - filtro de período do dashboard
-- Dashboard agora aceita filtro opcional por data inicial e final.
-- Faturamento, lucro, compras, taxas, ticket, volume, mais vendidos e contadores de vendas respeitam o período.
-- Estoque baixo continua mostrando o estoque atual, pois não é uma métrica histórica.
-- Alterar estoque na tabela de produtos não recarrega nem reordena automaticamente a listagem; a nova ordenação só aparece ao ordenar, filtrar, trocar de página ou recarregar.
+```text
+EM_ABERTO
+FINALIZADA
+CANCELADA
+```
+
+O sistema também considera informações como estoque, taxas, frete e embalagem.
+
+Os orçamentos permitem preparar uma operação antes da venda e podem ser convertidos posteriormente em vendas, preservando os itens e valores registrados.
+
+## 📦 Produtos e estoque
+
+Os produtos podem ser organizados por álbum, categoria e tipo.
+
+O sistema permite acompanhar e alterar o estoque disponível, além de identificar produtos com estoque baixo.
+
+Para figurinhas, o cadastro pode utilizar informações como álbum, ano, seleção e número.
+
+## 🛒 Compras
+
+O sistema permite registrar compras de produtos realizadas pelo vendedor.
+
+Essas compras representam o investimento feito na aquisição de mercadorias e são consideradas nos indicadores financeiros apresentados no Dashboard.
+
+## 🏷️ Preços e configurações de venda
+
+O sistema permite configurar preços de acordo com categorias e álbuns, além de trabalhar com preços específicos para determinados produtos.
+
+As configurações de venda permitem representar diferentes formas de comercialização, incluindo vendas diretas e operações realizadas pela Shopee.
+
+Taxas percentuais, taxas fixas, embalagem e outras informações da operação podem ser consideradas nos cálculos da venda.
+
+## 🔎 Filtros e paginação
+
+As principais áreas do sistema possuem filtros e paginação para facilitar a utilização mesmo com uma quantidade maior de produtos, vendas e outros registros.
+
+## ☁️ Deploy
+
+A aplicação é executada em um container Docker hospedado no Render.
+
+O banco PostgreSQL está hospedado no Supabase.
+
+```text
+Usuário
+   ↓
+Render
+   ↓
+Spring Boot
+   ↓
+Supabase
+   ↓
+PostgreSQL
+```
+
+O código-fonte é versionado com Git e armazenado no GitHub.
+
+## 🔐 Variáveis de ambiente
+
+As credenciais de acesso ao banco de dados são configuradas através de variáveis de ambiente e não ficam armazenadas diretamente no código-fonte.
+
+```env
+DB_URL=
+DB_USERNAME=
+DB_PASSWORD=
+```
+
+Durante o desenvolvimento local, essas informações podem ser definidas em um arquivo `.env`.
+
+O arquivo `.env` não deve ser enviado ao repositório.
+
+## 💻 Executando localmente
+
+### Requisitos
+
+- Java 21
+- Maven
+- PostgreSQL ou acesso a uma instância PostgreSQL
+
+Configure as variáveis de ambiente necessárias e execute a aplicação pela IDE ou através do Maven.
+
+Por padrão, a aplicação estará disponível em:
+
+```text
+http://localhost:8080
+```
+
+## 👨‍💻 Autor
+
+**João Gabriel**
+
+Projeto desenvolvido como aplicação prática de desenvolvimento web utilizando Java, Spring Boot, PostgreSQL, HTML, CSS e JavaScript.
