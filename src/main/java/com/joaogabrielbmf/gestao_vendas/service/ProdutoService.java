@@ -56,16 +56,13 @@ public class ProdutoService {
 
         if (tipoCustomizado) {
             TipoProdutoCustomizado custom = buscarTipoCustomizadoDoUsuario(r.getCodigoTipoCustomizado());
-            if (p.getNomeProduto() == null || p.getNomeProduto().isBlank()) {
-                throw new IllegalArgumentException("Nome é obrigatório para este tipo de produto.");
-            }
             if (p.getPrecoEspecifico() == null) {
                 throw new IllegalArgumentException("Preço específico é obrigatório para este tipo de produto.");
             }
             p.setTipoProduto(TipoProduto.CUSTOMIZADO);
             p.setTipoProdutoCustomizado(custom);
             limparCamposDeFigurinha(p);
-            p.setAlbum(null);
+            p.setAlbum(r.getCodigoAlbum() == null ? null : buscarAlbum(r.getCodigoAlbum()));
             return produtoRepository.save(p);
         }
 
@@ -103,9 +100,6 @@ public class ProdutoService {
 
         if (r.getTipoProduto() == TipoProduto.ALBUM_COMPLETO || r.getTipoProduto() == TipoProduto.ALBUM_INCOMPLETO) {
             if (r.getCodigoAlbum() == null) throw new IllegalArgumentException("Álbum é obrigatório.");
-            if (p.getNomeProduto() == null || p.getNomeProduto().isBlank()) {
-                throw new IllegalArgumentException("Nome é obrigatório para álbum.");
-            }
             if (p.getPrecoEspecifico() == null) {
                 throw new IllegalArgumentException("Preço específico é obrigatório para álbum.");
             }
@@ -236,14 +230,11 @@ public class ProdutoService {
         p.setPrecoEspecifico(r.getPrecoEspecifico());
 
         if (p.getTipoProdutoCustomizado() != null) {
-            if (p.getNomeProduto() == null || p.getNomeProduto().isBlank()) {
-                throw new IllegalArgumentException("Nome é obrigatório para este tipo de produto.");
-            }
             if (p.getPrecoEspecifico() == null) {
                 throw new IllegalArgumentException("Preço específico é obrigatório para este tipo de produto.");
             }
             limparCamposDeFigurinha(p);
-            p.setAlbum(null);
+            p.setAlbum(r.getCodigoAlbum() == null ? null : buscarAlbum(r.getCodigoAlbum()));
             return produtoRepository.save(p);
         }
 
@@ -279,9 +270,6 @@ public class ProdutoService {
 
         if (p.getTipoProduto() == TipoProduto.ALBUM_COMPLETO || p.getTipoProduto() == TipoProduto.ALBUM_INCOMPLETO) {
             if (r.getCodigoAlbum() == null) throw new IllegalArgumentException("Álbum é obrigatório.");
-            if (p.getNomeProduto() == null || p.getNomeProduto().isBlank()) {
-                throw new IllegalArgumentException("Nome é obrigatório para álbum.");
-            }
             if (p.getPrecoEspecifico() == null) {
                 throw new IllegalArgumentException("Preço específico é obrigatório para álbum.");
             }

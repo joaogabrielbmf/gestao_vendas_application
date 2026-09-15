@@ -51,6 +51,18 @@ public class VendaController {
         );
     }
 
+    @GetMapping("/produtos-vendidos")
+    public List<ProdutoVendidoResponse> produtosVendidos(
+            @RequestParam(name = "dataInicio", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicio,
+            @RequestParam(name = "dataFim", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim,
+            @RequestParam(name = "tipo", required = false) String tipo,
+            @RequestParam(name = "album", required = false) Integer album,
+            @RequestParam(name = "ano", required = false) Integer ano,
+            @RequestParam(name = "selecao", required = false) String selecao,
+            @RequestParam(name = "numero", required = false) Integer numero) {
+        return service.produtosVendidos(dataInicio, dataFim, tipo, album, ano, selecao, numero);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Venda> buscar(@PathVariable("id") int id) {
         return service.buscar(id)

@@ -1,6 +1,9 @@
 package com.joaogabrielbmf.gestao_vendas.service;
 
 import com.joaogabrielbmf.gestao_vendas.dto.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.*;
 import com.joaogabrielbmf.gestao_vendas.model.*;
 import com.joaogabrielbmf.gestao_vendas.repository.*;
 import org.springframework.stereotype.Service;
@@ -14,6 +17,8 @@ import java.util.*;
 
 @Service
 public class VendaService {
+    @PersistenceContext
+    private EntityManager entityManager;
     private final VendaRepository vendaRepository;
     private final ItemVendaRepository itemRepository;
     private final ProdutoRepository produtoRepository;
@@ -413,4 +418,54 @@ public class VendaService {
     private BigDecimal nvl(BigDecimal valor) {
         return valor == null ? BigDecimal.ZERO : valor;
     }
+
+    public List<ProdutoVendidoResponse> produtosVendidos(LocalDate dataInicio, LocalDate dataFim,
+                                                          String tipo, Integer codigoAlbum, Integer ano,
+                                                          String selecao, Integer numero) {
+        Usuario usuario = usuarioAtualService.get();
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
+        Root<ItemVenda> item = cq.from(ItemVenda.class);
+        Join<ItemVenda, Venda> venda = item.join("venda");
+        Join<ItemVenda, Produto> produto = item.join("produto");
+
+        List<Predicate> filtros = new ArrayList<>();
+        filtros.add(cb.equal(venda.get("usuario"), usuario));
+        filtros.add(cb.equal(venda.get("statusVenda"), StatusVenda.FINALIZADA));
+
+        if (dataInicio != null) filtros.add(cb.greaterThanOrEqualTo(venda.get("data"), dataInicio));
+        if (dataFim != null) filtros.add(cb.lessThanOrEqualTo(venda.get("data"), dataFim));
+
+        if (tipo != null && !tipo.isBlank()) {
+            if (tipo.startsWith("CUSTOM:")) {
+                try {
+                    Integer codigoCustom = Integer.valueOf(tipo.substring("CUSTOM:".length()));
+                    filtros.add(cb.equal(produto.join("tipoProdutoCustomizado").get("codigoTipoProduto"), codigoCustom));
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("Tipo de produto inválido.");
+                }
+            } else {
+                try {
+                    filtros.add(cb.equal(produto.get("tipoProduto"), TipoProduto.valueOf(tipo)));
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("Tipo de produto inválido.");
+                }
+            }
+        }
+
+        if (codigoAlbum != null) filtros.add(cb.equal(produto.join("album").get("codigoAlbum"), codigoAlbum));
+        if (ano != null) filtros.add(cb.equal(produto.join("album").get("ano"), ano));
+        if (selecao != null && !selecao.isBlank()) filtros.add(cb.equal(cb.upper(produto.get("selecaoFigurinha")), selecao.trim().toUpperCase(Locale.ROOT)));
+        if (numero != null) filtros.add(cb.equal(produto.get("numeroFigurinha"), numero));
+
+        cq.multiselect(produto, cb.sum(item.get("quantidade")))
+                .where(filtros.toArray(Predicate[]::new))
+                .groupBy(produto)
+                .orderBy(cb.desc(cb.sum(item.get("quantidade"))), cb.asc(produto.get("codigoProduto")));
+
+        return entityManager.createQuery(cq).getResultList().stream()
+                .map(r -> new ProdutoVendidoResponse((Produto) r[0], ((Number) r[1]).longValue()))
+                .toList();
+    }
+
 }

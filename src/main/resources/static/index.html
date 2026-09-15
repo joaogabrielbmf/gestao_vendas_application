@@ -88,6 +88,9 @@
       <label>Álbum
         <select id="produtoAlbum"></select>
       </label>
+      <label>Ano
+        <input id="produtoAno" type="number" disabled placeholder="Definido pelo álbum">
+      </label>
       <label>Categoria
         <select id="produtoCategoria"></select>
       </label>
@@ -98,7 +101,7 @@
         <input id="produtoNumero" type="number">
       </label>
       <label>Nome
-        <input id="produtoNome" placeholder="Opcional para figurinhas">
+        <input id="produtoNome" placeholder="Opcional">
       </label>
       <label>Preço específico
         <input id="produtoPreco" type="number" step="0.01">
@@ -361,6 +364,7 @@
       <button type="button" class="tab-btn" data-sales-tab="vendasAbertasVenda">Vendas em aberto</button>
       <button type="button" class="tab-btn" data-sales-tab="orcamentosVenda">Orçamentos</button>
       <button type="button" class="tab-btn" data-sales-tab="historicoVenda">Histórico</button>
+      <button type="button" class="tab-btn" data-sales-tab="produtosVendidosVenda">Produtos Vendidos</button>
     </div>
 
     <div id="novaVenda" class="sales-tab active-sales-tab">
@@ -466,6 +470,23 @@
       </div>
       <div id="listaHistoricoVendas" class="table-wrap"></div>
       <div id="paginacaoHistorico" class="pagination"></div>
+    </div>
+
+    <div id="produtosVendidosVenda" class="sales-tab">
+      <div class="filter-header">
+        <button type="button" class="secondary filter-toggle" data-filter-target="filtrosProdutosVendidos">⏷ Filtrar</button>
+      </div>
+      <div class="panel history-filters hidden" id="filtrosProdutosVendidos">
+        <label>De<input id="produtosVendidosDataInicio" type="date"></label>
+        <label>Até<input id="produtosVendidosDataFim" type="date"></label>
+        <label>Tipo de produto<select id="produtosVendidosTipo" class="filter-search-select"></select></label>
+        <label>Álbum<select id="produtosVendidosAlbum" class="filter-search-select"></select></label>
+        <label>Ano<select id="produtosVendidosAno" class="filter-search-select"></select></label>
+        <label>Seleção<select id="produtosVendidosSelecao" class="filter-search-select"></select></label>
+        <label>Número<input id="produtosVendidosNumero" type="number" min="0"></label>
+        <div class="form-actions"><button type="button" id="limparFiltrosProdutosVendidos" class="secondary">Limpar filtros</button></div>
+      </div>
+      <div id="listaProdutosVendidos" class="table-wrap"></div>
     </div>
   </section>
 </main>

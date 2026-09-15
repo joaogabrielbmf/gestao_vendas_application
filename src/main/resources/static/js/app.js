@@ -216,6 +216,7 @@ $$('[data-sales-tab]').forEach(btn => {
     document.getElementById(btn.dataset.salesTab)?.classList.add('active-sales-tab');
     btn.classList.add('active-tab');
     if (btn.dataset.salesTab === 'historicoVenda') carregarHistorico(0);
+    if (btn.dataset.salesTab === 'produtosVendidosVenda') carregarProdutosVendidos();
   };
 });
 
@@ -343,6 +344,10 @@ function refreshSelects() {
   setSelect('#historicoCliente',state.clientes.map(c=>({value:c.codigoCliente,label:c.nomeCliente})),'Todos');
   setSelect('#historicoCanal',state.configuracoes.map(c=>({value:c.codigoConfiguracao,label:c.nome})),'Todos');
   setSelect('#historicoTipoProduto',tiposProdutoOptions(),'Todos');
+  setSelect('#produtosVendidosTipo',tiposProdutoOptions(),'Todos');
+  setSelect('#produtosVendidosAlbum',state.albuns.map(a=>({value:a.codigoAlbum,label:albumDescricao(a)})),'Todos');
+  setSelect('#produtosVendidosAno',uniqueSorted(state.albuns.map(a=>a.ano),true).map(v=>({value:v,label:v})),'Todos');
+  setSelect('#produtosVendidosSelecao',uniqueSorted(state.produtos.map(p=>p.selecaoFigurinha)).map(v=>({value:v,label:v})),'Todas');
 
   enhanceAllSearchableFilters();
   $$('.table-filters,.history-filters').forEach(updateFilterButton);
@@ -748,7 +753,7 @@ function atualizarCamposProduto() {
   const album=tipo==='ALBUM_COMPLETO'||tipo==='ALBUM_INCOMPLETO';
   const produtoAlbum=$('#produtoAlbum'),cat=$('#produtoCategoria'),sel=$('#produtoSelecao'),numero=$('#produtoNumero');
 
-  produtoAlbum.disabled=custom;
+  produtoAlbum.disabled=false;
   cat.disabled=!figurinha;
   numero.disabled=!figurinha;
 
@@ -761,7 +766,8 @@ function atualizarCamposProduto() {
   sel.disabled=!exige;
   if(!exige)sel.value='';
 
-  if(custom)produtoAlbum.value='';
+  const albumSelecionado=state.albuns.find(a=>String(a.codigoAlbum)===String(produtoAlbum.value));
+  $('#produtoAno').value=albumSelecionado?.ano??'';
   if(album){
     cat.value='';sel.value='';numero.value='';
   }
@@ -1239,6 +1245,36 @@ function renderHistorico(){
   }</tbody></table>`;
   renderPagination('#paginacaoHistorico',historicoPage,p=>carregarHistorico(p));
 }
+
+/* ---------- Produtos vendidos ---------- */
+function produtosVendidosQuery(){
+  const p=new URLSearchParams();
+  const map=[
+    ['dataInicio','#produtosVendidosDataInicio'],['dataFim','#produtosVendidosDataFim'],
+    ['tipo','#produtosVendidosTipo'],['album','#produtosVendidosAlbum'],['ano','#produtosVendidosAno'],
+    ['selecao','#produtosVendidosSelecao'],['numero','#produtosVendidosNumero']
+  ];
+  map.forEach(([k,id])=>{const v=val(id);if(v)p.set(k,v)});
+  return p;
+}
+
+async function carregarProdutosVendidos(){
+  try{
+    const rows=await api(`/vendas/produtos-vendidos?${produtosVendidosQuery()}`);
+    $('#listaProdutosVendidos').innerHTML=`<table><thead><tr><th>Produto</th><th>Tipo</th><th>Álbum</th><th>Ano</th><th>Seleção</th><th>Número</th><th>Quantidade vendida</th></tr></thead><tbody>${
+      rows.map(r=>{const p=r.produto;return `<tr><td>${esc(p.nomeProduto||'—')}</td><td>${esc(tipoProdutoLabel(p))}</td><td>${esc(p.album?.nomeAlbum||'—')}</td><td>${p.album?.ano??'—'}</td><td>${esc(p.selecaoFigurinha||'—')}</td><td>${p.numeroFigurinha??'—'}</td><td>${r.quantidadeVendida}</td></tr>`}).join('')
+    }</tbody></table>`;
+    if(!rows.length)$('#listaProdutosVendidos').innerHTML='<div class="empty">Nenhum produto vendido para os filtros selecionados.</div>';
+  }catch(e){toast(e.message)}
+}
+
+['#produtosVendidosDataInicio','#produtosVendidosDataFim','#produtosVendidosTipo','#produtosVendidosAlbum','#produtosVendidosAno','#produtosVendidosSelecao','#produtosVendidosNumero'].forEach(id=>{
+  $(id)?.addEventListener('change',()=>{updateFilterButton($('#filtrosProdutosVendidos'));carregarProdutosVendidos()});
+});
+$('#limparFiltrosProdutosVendidos').onclick=()=>{
+  $('#filtrosProdutosVendidos').querySelectorAll('input,select').forEach(el=>{el.value='';if(el.tagName==='SELECT')syncSearchableSelect(el)});
+  updateFilterButton($('#filtrosProdutosVendidos'));carregarProdutosVendidos();
+};
 
 /* ---------- Detalhes compactos ---------- */
 function gruposItensHtml(itens){
